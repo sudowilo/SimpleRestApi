@@ -25,6 +25,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-// var testValue = builder.Configuration["testSecret"];
-// Console.WriteLine(testValue);
+
 app.Run();
