@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SimpleRestApi.Data;
 
 namespace SimpleRestApi.Controllers
 {
@@ -7,10 +9,19 @@ namespace SimpleRestApi.Controllers
   [Route("api/[controller]")]
   public class ItemsController : ControllerBase
   {
-    [HttpGet]
-    public IActionResult Get()
+
+    private readonly SimpleRestApiContext _context;
+
+    public ItemsController (SimpleRestApiContext context)
     {
-      return Ok("here is item route");
+      _context = context;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+      var items = await _context.Items.ToListAsync();
+      return Ok(items);
     }
   }
 }
