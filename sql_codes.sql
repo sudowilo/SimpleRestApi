@@ -61,3 +61,17 @@ VALUES
 (N'کابل شبکه CAT6 پنج متری', N'کابل شبکه با سرعت انتقال بالا مناسب شبکه‌های سازمانی.', 180000),
 (N'هارد اکسترنال وسترن ۱ ترابایت', N'حافظه اکسترنال USB3 مناسب بکاپ‌گیری اطلاعات.', 3100000),
 (N'سرویس پشتیبانی نرم‌افزاری سالانه', N'پشتیبانی و نگهداری سیستم‌های نرم‌افزاری به مدت یک سال.', 6000000);
+
+-- CREATE TRIGGER trg_update_invoice_total
+-- ON invoice_item
+-- AFTER INSERT, UPDATE, DELETE
+-- AS
+-- BEGIN
+--     UPDATE invoices
+--     SET total_amount = ISNULL((
+--     SELECT SUM(total_price)
+--     FROM invoice_item
+--     WHERE invoice_id = invoices.id
+-- ), 0)
+--     WHERE id IN (SELECT DISTINCT invoice_id FROM inserted UNION SELECT DISTINCT invoice_id FROM deleted);
+-- END;
