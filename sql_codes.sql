@@ -23,11 +23,11 @@ GO
 
 CREATE TABLE invoices (
     id INT IDENTITY(1,1) PRIMARY KEY,
-    invoice_number INT NOT NULL UNIQUE,
-    customer_name NVARCHAR(255),
-    customer_phone NVARCHAR(50),
-    invoice_date DATE NOT NULL,
-    status_id INT NOT NULL,
+    invoice_number NVARCHAR(50) UNIQUE,
+    customer_name NVARCHAR(255) NOT NULL,
+    customer_phone NVARCHAR(50) NOT NULL,
+    invoice_date DATE,
+    status_id INT,
     total_amount BIGINT,
     note NVARCHAR(MAX),
     CONSTRAINT fk_invoices_status FOREIGN KEY (status_id)
@@ -75,3 +75,9 @@ VALUES
 -- ), 0)
 --     WHERE id IN (SELECT DISTINCT invoice_id FROM inserted UNION SELECT DISTINCT invoice_id FROM deleted);
 -- END;
+
+INSERT INTO invoice_status (code, description) 
+VALUES 
+  ('unpaid', 'default when invoice creates'),
+  ('paid', 'after customer paid the price'),
+  ('cancelled', 'invoice is not valid any more because it get cancelled for any reason');
