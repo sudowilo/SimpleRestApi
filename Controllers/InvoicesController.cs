@@ -32,7 +32,33 @@ namespace SimpleRestApi.Controllers
     [HttpGet]
     public async Task<ActionResult> Get()
     {
-      var invoices = await _context.Invoices.ToListAsync();
+      var invoices = await _context.Invoices
+        .Include(i => i.InvoiceItems)
+        .ThenInclude(ii => ii.Item)
+        .Include(i => i.Status)
+        .Select(i => new
+        {
+          i.Id,
+          i.InvoiceNumber,
+          i.CustomerName,
+          i.CustomerPhone,
+          i.InvoiceDate,
+          i.TotalAmount,
+          i.Note,
+          Status = i.Status != null ? i.Status.Description : null,
+          InvoiceItems = i.InvoiceItems.Select(ii => new
+          {
+            ii.Id,
+            ii.ItemId,
+            ii.Quantity,
+            ii.Fee,
+            ii.TotalPrice,
+            ItemName = ii.Item!.Name,
+            ItemPrice = ii.Item!.Price
+          })
+        })
+        .ToListAsync();
+        
       return Ok(invoices);
     }
 
