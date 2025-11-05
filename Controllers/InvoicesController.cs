@@ -135,5 +135,51 @@ namespace SimpleRestApi.Controllers
       }
 
     }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult> Put(int id, [FromBody] Invoice updatedInvoice)
+    {
+      var existingInvoice = await _context.Invoices
+          .Include(i => i.InvoiceItems)
+          .FirstOrDefaultAsync(i => i.Id == id);
+
+      if (existingInvoice == null)
+        return NotFound(new { message = "Invoice not found." });
+
+
+      existingInvoice.CustomerName = updatedInvoice.CustomerName;
+      existingInvoice.CustomerPhone = updatedInvoice.CustomerPhone;
+      existingInvoice.Note = updatedInvoice.Note;
+      existingInvoice.StatusId = updatedInvoice.StatusId;
+
+
+      if (updatedInvoice.InvoiceItems != null && updatedInvoice.InvoiceItems.Count > 0)
+      {
+        _context.InvoiceItems.RemoveRange(existingInvoice.InvoiceItems);
+        foreach (var item in updatedInvoice.InvoiceItems)
+        {
+          if (item == null)
+            continue; 
+
+          if (item.ItemId == 0)
+            return BadRequest("Invoice item must have an ItemId.");
+
+          item.InvoiceId = id;
+
+          var dbItem = await _context.Items.FindAsync(item.ItemId);
+          if (dbItem == null)
+            return BadRequest($"Item with ID {item.ItemId} not found.");
+
+          item.Fee = dbItem.Price;
+
+          _context.InvoiceItems.Add(item);
+        }
+      }
+
+
+      await _context.SaveChangesAsync();
+      return Ok(new { message = "Invoice updated successfully." });
+    }
+
   }
 }
