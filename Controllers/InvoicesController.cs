@@ -58,8 +58,45 @@ namespace SimpleRestApi.Controllers
           })
         })
         .ToListAsync();
-        
+
       return Ok(invoices);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult> GetById(int id)
+    {
+      var invoice = await _context.Invoices
+          .Include(i => i.InvoiceItems)
+              .ThenInclude(ii => ii.Item)
+          .Include(i => i.Status)
+          .Where(i => i.Id == id)
+          .Select(i => new
+          {
+            i.Id,
+            i.InvoiceNumber,
+            i.CustomerName,
+            i.CustomerPhone,
+            i.InvoiceDate,
+            i.TotalAmount,
+            i.Note,
+            Status = i.Status != null ? i.Status.Description : null,
+            InvoiceItems = i.InvoiceItems.Select(ii => new
+            {
+              ii.Id,
+              ii.ItemId,
+              ii.Quantity,
+              ii.Fee,
+              ii.TotalPrice,
+              ItemName = ii.Item!.Name,
+              ItemPrice = ii.Item!.Price
+            })
+          })
+          .FirstOrDefaultAsync();
+
+      if (invoice == null)
+        return NotFound(new { message = "Invoice not found." });
+
+      return Ok(invoice);
     }
 
     [HttpPost]
