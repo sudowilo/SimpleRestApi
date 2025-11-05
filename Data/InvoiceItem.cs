@@ -17,7 +17,7 @@ public partial class InvoiceItem
 
     public long? TotalPrice { get; set; }
 
-    public virtual Invoice Invoice { get; set; } = null!;
+    public virtual Invoice? Invoice { get; set; }
 
-    public virtual Item Item { get; set; } = null!;
+    public virtual Item? Item { get; set; }
 }

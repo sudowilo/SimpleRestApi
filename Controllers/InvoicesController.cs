@@ -33,8 +33,7 @@ namespace SimpleRestApi.Controllers
     public async Task<ActionResult> Get()
     {
       var invoices = await _context.Invoices.ToListAsync();
-      Console.WriteLine("hmmm");
-      return Ok("invoices");
+      return Ok(invoices);
     }
 
     [HttpPost]
@@ -46,7 +45,16 @@ namespace SimpleRestApi.Controllers
       {
         newInvoice.StatusId = statusId;
         newInvoice.InvoiceDate = DateOnly.FromDateTime(invoiceDate);
-        Console.WriteLine(newInvoice);
+
+        foreach (var item in newInvoice.InvoiceItems)
+        {
+          var dbItem = await _context.Items.FindAsync(item.ItemId);
+          if (dbItem == null)
+            return BadRequest($"Item with ID {item.ItemId} not found.");
+
+          item.Fee = dbItem.Price;
+        }
+
         _context.Invoices.Add(newInvoice);
         await _context.SaveChangesAsync();
 
@@ -54,6 +62,7 @@ namespace SimpleRestApi.Controllers
         newInvoice.InvoiceNumber = invoiceNumber;
 
         await _context.SaveChangesAsync();
+        await _context.Entry(newInvoice).ReloadAsync();
         return StatusCode(201, newInvoice);
       }
       catch (Exception ex)

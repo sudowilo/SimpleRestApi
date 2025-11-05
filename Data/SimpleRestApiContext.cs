@@ -123,6 +123,11 @@ public partial class SimpleRestApiContext : DbContext
             entity.Property(e => e.Price).HasColumnName("price");
         });
 
+        modelBuilder.Entity<InvoiceItem>()
+            .ToTable(tb => tb.HasTrigger("trg_update_invoice_total"));
+
+        base.OnModelCreating(modelBuilder);
+
         OnModelCreatingPartial(modelBuilder);
     }
 
